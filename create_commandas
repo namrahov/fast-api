@@ -1,0 +1,95 @@
+1. Virtual environment doğrudan da aktivdir?
+
+Terminalda görünməlidir:
+
+(.venv) PS ...
+
+
+Yoxdursa, aktiv et:
+
+.\.venv\Scripts\Activate.ps1
+
+
+Əgər .venv yoxdursa, yenidən yarat:
+
+python -m venv .venv
+
+
+Sonra aktivləşdir:
+
+.\.venv\Scripts\Activate.ps1
+
+✅ 2. Uvicorn əslində quraşıbmı?
+
+İndi yaz:
+
+pip show uvicorn
+
+
+Əgər nəticə boşdursa, yenidən qur:
+
+pip install "uvicorn[standard]" fastapi
+
+
+və sonra yenə yoxla:
+
+pip show uvicorn
+
+✅ 3. Scripts folder-ında uvicorn.exe var?
+dir .venv\Scripts | findstr uvicorn
+
+
+Görməlisən:
+
+uvicorn.exe
+
+
+Əgər var, amma işləmirsə, belə çalışdır:
+
+.\.venv\Scripts\uvicorn.exe books:app --reload
+
+✅ 4. Universal variant (PATH problemi varsa)
+
+Bu 100% işləyəcək:
+
+python -m uvicorn books:app --reload
+
+
+və ya:
+
+py -m uvicorn books:app --reload
+
+❌ Əgər tam yenə işləmir disən
+
+Windows Execution Policy blok edir.
+
+Aç PowerShell Admin olaraq və yaz:
+
+Set-ExecutionPolicy RemoteSigned
+
+
+Sonra yenidən:
+
+.\.venv\Scripts\Activate.ps1
+
+✅ Test üçün minimal FastAPI faylı (books.py)
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"msg": "FastAPI works!"}
+
+
+Run:
+
+python -m uvicorn books:app --reload
+
+✨ Mənə göndər:
+
+Bu 3 komandanın screenshot-unu at:
+
+pip show uvicorn
+dir .venv\Scripts | findstr uvicorn
+python --version
