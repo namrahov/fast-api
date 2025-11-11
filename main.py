@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 # ✅ Load environment variables
 load_dotenv("application-local.env")
 
-from TodoApp.database import engine, Base
+from db.database import engine, Base
 import importlib
 import pkgutil
 import controller

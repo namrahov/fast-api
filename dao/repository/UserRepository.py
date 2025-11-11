@@ -1,5 +1,5 @@
 from dao.entity.User import User
-from TodoApp.database import SessionLocal
+from db.database import SessionLocal
 
 def save_all_users(users):
     with SessionLocal() as session:
