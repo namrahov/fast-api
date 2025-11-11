@@ -11,6 +11,4 @@ async def upload_excel(
         file: UploadFile = File(...),
         db: Annotated[Session, Depends(get_session)] = None
 ):
-    return await upload_excel_file(file, db)
-
-
+    await upload_excel_file(file, db)

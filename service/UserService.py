@@ -1,4 +1,3 @@
-
 from starlette.exceptions import HTTPException
 import io
 from fastapi import UploadFile
@@ -26,6 +25,3 @@ async def upload_excel_file(file: UploadFile, db: Session):
                 users.append({"name": name, "email": email})
 
     save_all_users(users, db)
-
-
-

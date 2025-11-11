@@ -13,18 +13,3 @@ def save_all_users(users, db: Session):
         db.rollback()
         print(f"❌ Error saving users: {e}")
         raise
-
-#
-# def save_user(name, email):
-#     session = SessionLocal()
-#     try:
-#         user = User(name=name, email=email)
-#         session.add(user)
-#         session.commit()
-#         session.refresh(user)
-#         print(f"✅ Saved user: {user}")
-#     except Exception as e:
-#         session.rollback()
-#         print(f"❌ Error: {e}")
-#     finally:
-#         session.close()
