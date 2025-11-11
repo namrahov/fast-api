@@ -4,6 +4,7 @@ import importlib
 import pkgutil
 import controller
 import uvicorn
+import os
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -22,7 +23,7 @@ def setup_database():
 
 # Run the server
 def run_server():
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", host=os.getenv('HOST'), port=int(os.getenv("PORT")), reload=True)
 
 # Main entry point
 if __name__ == "__main__":
