@@ -10,11 +10,10 @@ async def upload_excel_file(file: UploadFile):
     if not file.filename.endswith((".xlsx", ".xls")):
         raise HTTPException(status_code=403, detail="Invalid file type. Only .xlsx or .xls allowed.")
 
-    # Read uploaded file into memory
     content = await file.read()
     workbook = openpyxl.load_workbook(io.BytesIO(content))
 
-    users = []  # collect all user rows
+    users = []
 
     for sheet in workbook.sheetnames:
         ws = workbook[sheet]
@@ -28,8 +27,8 @@ async def upload_excel_file(file: UploadFile):
 
     if users:
         save_all_users(users)
-        return {"message": f"✅ {len(users)} users saved successfully!"}
-    else:
-        return {"warning": "⚠️ No valid rows found to save."}
+#        return {"message": f"✅ {len(users)} users saved successfully!"}
+        #    else:
+#       return {"warning": "⚠️ No valid rows found to save."}
 
 

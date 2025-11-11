@@ -2,13 +2,6 @@ from dao.entity.User import User
 from TodoApp.database import SessionLocal
 
 def save_all_users(users):
-    """
-    users: list of dicts or tuples, e.g.
-    [
-        {"name": "Alice", "email": "alice@example.com"},
-        {"name": "Bob", "email": "bob@example.com"}
-    ]
-    """
     session = SessionLocal()
     try:
         user_objects = [User(name=u["name"], email=u["email"]) for u in users]
