@@ -1,6 +1,6 @@
-from fastapi import File, Depends, status
+from fastapi import File, status
 from main import app
-from db.database import get_session, db_dependency as db_depenceny
+from db.database import db_dependency as db_depenceny
 from service.UserService import *
 
 
