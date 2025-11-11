@@ -1,9 +1,19 @@
 from fastapi import FastAPI
 from TodoApp.database import engine, Base
-from controller import UserController
+import importlib
+import pkgutil
+import controller
 
 # Initialize FastAPI app
 app = FastAPI()
+
+# Dynamically import all controller modules
+def load_controllers(package):
+    package_path = package.__path__
+    for _, name, _ in pkgutil.iter_modules(package_path):
+        importlib.import_module(f"{package.__name__}.{name}")
+
+load_controllers(controller)
 
 # Initialize database tables
 def setup_database():
