@@ -6,7 +6,7 @@ from dao.repository.UserRepository import *
 import openpyxl
 
 
-async def upload_excel_file(file: UploadFile):
+async def upload_excel_file(file: UploadFile, db: Session):
     if not file.filename.endswith((".xlsx", ".xls")):
         raise HTTPException(status_code=403, detail="Invalid file type. Only .xlsx or .xls allowed.")
 
@@ -25,7 +25,7 @@ async def upload_excel_file(file: UploadFile):
             if name and email:  # skip empty rows
                 users.append({"name": name, "email": email})
 
-    save_all_users(users)
+    save_all_users(users, db)
 
 
 
