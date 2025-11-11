@@ -25,10 +25,7 @@ async def upload_excel_file(file: UploadFile):
             if name and email:  # skip empty rows
                 users.append({"name": name, "email": email})
 
-    if users:
-        save_all_users(users)
-#        return {"message": f"✅ {len(users)} users saved successfully!"}
-        #    else:
-#       return {"warning": "⚠️ No valid rows found to save."}
+    save_all_users(users)
+
 
 
