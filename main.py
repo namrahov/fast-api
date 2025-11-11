@@ -1,13 +1,20 @@
 from fastapi import FastAPI
 from TodoApp.database import engine, Base
-import dao.entity.User  # 👈 make sure to import your model module
-from controller import UserController  # 👈 import after app is created
+from controller import UserController
 
+# Initialize FastAPI app
 app = FastAPI()
 
-Base.metadata.create_all(bind=engine)
+# Initialize database tables
+def setup_database():
+    Base.metadata.create_all(bind=engine)
 
-
-if __name__ == "__main__":
+# Run the server
+def run_server():
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+
+# Main entry point
+if __name__ == "__main__":
+    setup_database()
+    run_server()
