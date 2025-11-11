@@ -1,11 +1,9 @@
-from fastapi import FastAPI
+from main import app
 from starlette import status
 from starlette.exceptions import HTTPException
 
 from dao.entity.Book import Book
 from model.BookRequest import BookRequest
-
-app = FastAPI()
 
 Books = [
     Book(1, "Fizika", "Fizika kitabi", 3),

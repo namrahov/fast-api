@@ -3,6 +3,7 @@ from TodoApp.database import engine, Base
 import importlib
 import pkgutil
 import controller
+import uvicorn
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -21,7 +22,6 @@ def setup_database():
 
 # Run the server
 def run_server():
-    import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
 
 # Main entry point
