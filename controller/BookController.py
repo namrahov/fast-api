@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from starlette import status
 from starlette.exceptions import HTTPException
 
 from dao.entity.Book import Book
@@ -11,17 +12,17 @@ Books = [
     Book(2, "Math", "Riyaziyyat kitabi", 4)
 ]
 
-@app.get("/books")
+@app.get("/books", status_code=status.HTTP_200_OK)
 async def get_books():
     return Books
 
-@app.post("/create-book")
+@app.post("/create-book",status_code=status.HTTP_201_CREATED)
 async def create_book(book_request: BookRequest):
     book = Book(**book_request.dict())
     Books.append(book)
     return Books
 
-@app.get("/books/{id}", status_code=200)
+@app.get("/books/{id}", status_code=status.HTTP_200_OK)
 async def get_book(id: int):
     for book in Books:
         if book.id == id:
