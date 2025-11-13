@@ -8,7 +8,61 @@ import openpyxl
 class UserService:
     def __init__(self, db: Session):
         self.db = db
+        self.buffer = None
+        self.filename = None
+        self.expected_size = None
+        self.received_size = 0
         self.userRepo = UserRepository(db)
+
+
+    # -------------------------------
+    # START UPLOAD
+    # -------------------------------
+    def start_upload(self, payload: dict):
+        self.filename = payload["filename"]
+        self.expected_size = payload["size"]
+        self.buffer = io.BytesIO()
+        self.received_size = 0
+
+    # -------------------------------
+    # WRITE CHUNK
+    # -------------------------------
+    def append_chunk(self, chunk: bytes):
+        if self.buffer is None:
+            raise Exception("Upload not started")
+
+        self.buffer.write(chunk)
+        self.received_size += len(chunk)
+        return self.received_size
+
+    # -------------------------------
+    # FINISH UPLOAD
+    # -------------------------------
+    def finish_upload(self):
+        if self.received_size != self.expected_size:
+            raise Exception("Size mismatch")
+
+        # Move to beginning of buffer
+        self.buffer.seek(0)
+
+        # Load Excel
+        workbook = openpyxl.load_workbook(self.buffer)
+        users = []
+
+        for sheet in workbook.sheetnames:
+            ws = workbook[sheet]
+
+            for row in ws.iter_rows(values_only=True):
+                if row and len(row) >= 2:
+                    name, email = row[0], row[1]
+                    if name and email:
+                        users.append({"name": name, "email": email})
+
+        # Save to DB
+        self.userRepo.save_all_users(users)
+
+        return len(users)
+
 
     async def upload_excel_file(self, file: UploadFile):
         if not file.filename.endswith((".xlsx", ".xls")):
@@ -30,3 +84,6 @@ class UserService:
                     users.append({"name": name, "email": email})
 
         self.userRepo.save_all_users(users)
+
+
+
