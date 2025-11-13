@@ -47,3 +47,13 @@ async def upload_excel_socket(websocket: WebSocket,
 @app.post("/upload-excel", status_code=status.HTTP_201_CREATED)
 async def upload_excel(file: UploadFile = File(...), db: db_depenceny = None):
     await UserService(db).upload_excel_file(file)
+
+
+#Oxuduqca db-yƏ yaz
+@app.post("/upload-excel-stream")
+async def upload_excel_stream(
+        file: UploadFile = File(...),
+        db: db_depenceny = None
+):
+    result = await UserService(db).save_excel_stream(file)
+    return result

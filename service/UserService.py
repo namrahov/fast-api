@@ -3,6 +3,10 @@ import io
 from fastapi import UploadFile
 from dao.repository.UserRepository import *
 import openpyxl
+import tempfile
+import os
+
+CHUNK_SIZE = 1024 * 1024  # 1 MB chunks
 
 
 class UserService:
@@ -13,7 +17,6 @@ class UserService:
         self.expected_size = None
         self.received_size = 0
         self.userRepo = UserRepository(db)
-
 
     # -------------------------------
     # START UPLOAD
@@ -63,7 +66,6 @@ class UserService:
 
         return len(users)
 
-
     async def upload_excel_file(self, file: UploadFile):
         if not file.filename.endswith((".xlsx", ".xls")):
             raise HTTPException(status_code=403, detail="Invalid file type. Only .xlsx or .xls allowed.")
@@ -85,5 +87,46 @@ class UserService:
 
         self.userRepo.save_all_users(users)
 
+    async def save_excel_stream(self, file: UploadFile):
+        # Create temp file on disk
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx")
+        tmp_name = tmp.name
 
+        # Write chunks
+        while chunk := await file.read(CHUNK_SIZE):
+            tmp.write(chunk)
 
+        tmp.close()  # Must close before openpyxl reads it on Windows
+
+        users = []
+
+        try:
+            # IMPORTANT: open workbook like this
+            workbook = openpyxl.load_workbook(tmp_name, read_only=True, data_only=True)
+
+            for sheet_name in workbook.sheetnames:
+                sheet = workbook[sheet_name]
+
+                for row in sheet.iter_rows(values_only=True):
+                    if row and len(row) >= 2:
+                        name, email = row[0], row[1]
+                        if name and email:
+                            users.append({"name": name, "email": email})
+
+                    if len(users) >= 500:
+                        self.userRepo.save_all_users(users)
+                        users = []
+
+            if users:
+                self.userRepo.save_all_users(users)
+
+            # CLOSE WORKBOOK FIRST!
+            workbook.close()
+
+        finally:
+            try:
+                os.remove(tmp_name)  # NOW removal works
+            except Exception as e:
+                print("Cleanup error:", e)
+
+        return {"status": "ok"}
