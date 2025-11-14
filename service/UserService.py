@@ -142,3 +142,7 @@ class UserService:
         )
 
         self.userRepo.save_user(create_user_dto)
+
+
+    async def get_user_by_id(self, user_id: int):
+        return self.userRepo.get_user_by_id(user_id)

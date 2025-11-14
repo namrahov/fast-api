@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from db.database import Base
+from sqlalchemy.orm import relationship
 
 
 class User(Base):
@@ -11,6 +12,7 @@ class User(Base):
     hashed_password = Column(String)
     active = Column(Boolean, default=False)
     role_id = Column(Integer, ForeignKey("roles.id"))
+    role = relationship("Role")   # ⭐ THIS ENABLES NESTED RETURN
 
     def __repr__(self):
         return f"<User(id={self.id}, name='{self.name}', email='{self.email}', active={self.active}, role='{self.role}')>"

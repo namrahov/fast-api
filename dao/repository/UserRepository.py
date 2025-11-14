@@ -1,8 +1,10 @@
 from dao.entity.User import User
 from sqlalchemy.orm import Session
-from model.exception.UserAlreadyExistsException import UserAlreadyExistsException
 from sqlalchemy.exc import IntegrityError
 
+from model.exception.NotFoundException import NotFoundException
+from model.exception.UserAlreadyExistsException import UserAlreadyExistsException
+from sqlalchemy.orm import joinedload
 
 class UserRepository:
     def __init__(self, db: Session):
@@ -32,3 +34,16 @@ class UserRepository:
             self.db.rollback()
             raise e
 
+    def get_user_by_id(self, user_id: int):
+        user = (
+            self.db.query(User)
+            .options(joinedload(User.role))   # ⭐ Auto join
+            .filter(User.id == user_id)
+            .first()
+        )
+
+        if not user:
+            not_found_message = f"User with id={user_id} not found"
+            raise NotFoundException(not_found_message)
+
+        return user
