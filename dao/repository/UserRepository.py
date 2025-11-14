@@ -15,5 +15,17 @@ class UserRepository:
             return user_objects
         except Exception as e:
             self.db.rollback()
-        print(f"❌ Error saving users: {e}")
-        raise
+            print(f"❌ Error saving users: {e}")
+            raise e
+
+    def save_user(self, user):
+        try:
+            self.db.add(user)
+            self.db.commit()
+            print("✅ Saved user.")
+            return user
+        except Exception as e:
+            self.db.rollback()
+            print(f"❌ Error saving user: {e}")
+            raise e  # or just "raise"
+

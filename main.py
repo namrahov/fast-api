@@ -10,6 +10,7 @@ import pkgutil
 import controller
 import uvicorn
 import os
+import dao.entity as entity
 
 # ✅ Initialize FastAPI app
 app = FastAPI()
@@ -22,6 +23,12 @@ def load_controllers(package):
 
 # Load all controllers so routes are registered
 load_controllers(controller)
+
+def load_models(package):
+    for _, module, _ in pkgutil.iter_modules(package.__path__):
+        importlib.import_module(f"{package.__name__}.{module}")
+
+load_models(entity)
 
 # ✅ Initialize database tables
 def setup_database():

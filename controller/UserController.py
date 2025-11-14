@@ -1,8 +1,9 @@
-from fastapi import File, status, WebSocket, WebSocketDisconnect, Depends
+from fastapi import File, Body, status, WebSocket, WebSocketDisconnect, Depends
 from main import app
-from db.database import db_dependency as db_depenceny
+from db.database import db_dependency as db_depenceny, get_session
 from service.UserService import *
 import json
+from model.UserCreateRequest import UserCreateRequest
 
 #https://chatgpt.com/share/6915b05c-08b0-800f-86e7-25c6de459305
 @app.websocket("/ws/upload-excel")
@@ -57,3 +58,7 @@ async def upload_excel_stream(
 ):
     result = await UserService(db).save_excel_stream(file)
     return result
+
+@app.post("/create-user", status_code=status.HTTP_201_CREATED)
+async def create_user(create_user_request: UserCreateRequest = Body(...), db: Session = Depends(get_session)):
+    await UserService(db).create_user(create_user_request)

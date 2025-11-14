@@ -5,6 +5,7 @@ from dao.repository.UserRepository import *
 import openpyxl
 import tempfile
 import os
+from model.UserCreateRequest import UserCreateRequest
 
 CHUNK_SIZE = 1024 * 1024  # 1 MB chunks
 
@@ -130,3 +131,14 @@ class UserService:
                 print("Cleanup error:", e)
 
         return {"status": "ok"}
+
+
+    async def create_user(self, create_user_request: UserCreateRequest):
+        create_user_dto = User(
+            name=create_user_request.name,
+            email=create_user_request.email,
+            hashed_password=create_user_request.password,
+            role_id=1
+        )
+
+        self.userRepo.save_user(create_user_dto)
