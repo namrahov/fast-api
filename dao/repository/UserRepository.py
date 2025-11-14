@@ -1,5 +1,7 @@
 from dao.entity.User import User
 from sqlalchemy.orm import Session
+from model.exception.UserAlreadyExistsException import UserAlreadyExistsException
+from sqlalchemy.exc import IntegrityError
 
 
 class UserRepository:
@@ -22,10 +24,11 @@ class UserRepository:
         try:
             self.db.add(user)
             self.db.commit()
-            print("✅ Saved user.")
             return user
+        except IntegrityError:
+            self.db.rollback()
+            raise UserAlreadyExistsException(user.email)
         except Exception as e:
             self.db.rollback()
-            print(f"❌ Error saving user: {e}")
-            raise e  # or just "raise"
+            raise e
 
