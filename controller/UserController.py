@@ -5,12 +5,13 @@ from service.UserService import *
 import json
 from model.UserCreateRequest import UserCreateRequest
 from model.UserResponse import UserResponse
+from model.AuthRequest import AuthRequest
 
-#https://chatgpt.com/share/6915b05c-08b0-800f-86e7-25c6de459305
+
+# https://chatgpt.com/share/6915b05c-08b0-800f-86e7-25c6de459305
 @app.websocket("/ws/upload-excel")
 async def upload_excel_socket(websocket: WebSocket,
                               db: db_depenceny = None):
-
     await websocket.accept()
     user_service = UserService(db)
 
@@ -51,7 +52,7 @@ async def upload_excel(file: UploadFile = File(...), db: db_depenceny = None):
     await UserService(db).upload_excel_file(file)
 
 
-#Oxuduqca db-yƏ yaz
+# Oxuduqca db-yƏ yaz
 @app.post("/upload-excel-stream")
 async def upload_excel_stream(
         file: UploadFile = File(...),
@@ -60,9 +61,11 @@ async def upload_excel_stream(
     result = await UserService(db).save_excel_stream(file)
     return result
 
+
 @app.post("/create-user", status_code=status.HTTP_201_CREATED)
 async def create_user(create_user_request: UserCreateRequest = Body(...), db: db_depenceny = None):
     await UserService(db).create_user(create_user_request)
+
 
 @app.get("/users/{user_id}", status_code=200, response_model=UserResponse)
 async def get_user_by_id(
@@ -70,4 +73,9 @@ async def get_user_by_id(
         db: db_depenceny = None
 ):
     user = await UserService(db).get_user_by_id(user_id)
-    return user   # FastAPI automatically converts SQLAlchemy model → JSON
+    return user  # FastAPI automatically converts SQLAlchemy model → JSON
+
+
+@app.post("/login")
+async def authenticate(authRequest: AuthRequest = Body(...), db: db_depenceny = None):
+    return await UserService(db).authenticate(authRequest)

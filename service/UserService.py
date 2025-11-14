@@ -7,11 +7,11 @@ import tempfile
 import os
 from model.UserCreateRequest import UserCreateRequest
 from passlib.context import CryptContext
+from model.AuthRequest import AuthRequest
+
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 CHUNK_SIZE = 1024 * 1024  # 1 MB chunks
-
 
 class UserService:
     def __init__(self, db: Session):
@@ -149,3 +149,12 @@ class UserService:
 
     async def get_user_by_id(self, user_id: int):
         return self.userRepo.get_user_by_id(user_id)
+
+    async def authenticate(self, authRequest: AuthRequest):
+        user = self.userRepo.get_user_by_email(authRequest.email)
+
+        if not bcrypt_context.verify(authRequest.password, user.hashed_password):
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        return "token"
+
+

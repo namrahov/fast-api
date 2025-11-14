@@ -47,3 +47,8 @@ class UserRepository:
             raise NotFoundException(not_found_message)
 
         return user
+
+    def get_user_by_email(self, email: str):
+        if not (user := self.db.query(User).filter(User.email == email).first()):
+            raise NotFoundException(f"User with email={email} not found")
+        return user
