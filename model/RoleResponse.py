@@ -1,9 +1,8 @@
-from pydantic import BaseModel, ConfigDict
+from config.base_response import BaseResponseModel
 
-class RoleResponse(BaseModel):
+class RoleResponse(BaseResponseModel):
     id: int
     name: str
 
-    model_config = ConfigDict(from_attributes=True)
 
 

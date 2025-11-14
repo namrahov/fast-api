@@ -1,12 +1,11 @@
 from model.RoleResponse import RoleResponse
-from pydantic import BaseModel, ConfigDict
+from config.base_response import BaseResponseModel
 
-class UserResponse(BaseModel):
+class UserResponse(BaseResponseModel):
     id: int
     name: str
     email: str
     active: bool
     role: RoleResponse   # nested DTO
 
-    model_config = ConfigDict(from_attributes=True)
 
