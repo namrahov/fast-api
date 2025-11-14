@@ -6,6 +6,9 @@ import openpyxl
 import tempfile
 import os
 from model.UserCreateRequest import UserCreateRequest
+from passlib.context import CryptContext
+
+bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 CHUNK_SIZE = 1024 * 1024  # 1 MB chunks
 
@@ -137,7 +140,7 @@ class UserService:
         create_user_dto = User(
             name=create_user_request.name,
             email=create_user_request.email,
-            hashed_password=create_user_request.password,
+            hashed_password=bcrypt_context.hash(create_user_request.password),
             role_id=1
         )
 
