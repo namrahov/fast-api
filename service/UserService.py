@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta, timezone
-from statistics import fmean
 
 from fastapi.params import Depends
 from sqlalchemy.sql.annotation import Annotated
@@ -18,8 +17,6 @@ from fastapi.security import OAuth2PasswordBearer
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 CHUNK_SIZE = 1024 * 1024  # 1 MB chunks
-SECRET_KEY = "dsfsfsdf"
-ALGORITHM = 'HS256'
 oauth2_bearer=OAuth2PasswordBearer(tokenUrl="token")
 
 
@@ -171,19 +168,9 @@ class UserService:
         encode = {'sub': username, 'id': user_id}
         expires = datetime.now(timezone.utc) + expires_delta
         encode.update({'exp': expires})
-        return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+        return jwt.encode(encode, os.getenv('SECRET_KEY'), algorithm=os.getenv('ALGORITHM'))
 
-    async def get_current_user(self, token: Annotated[str, Depends(oauth2_bearer)]):
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            username: str = payload.get('sub')
-            user_id = payload.get('id')
-            user = self.userRepo.get_user_by_id(user_id)
-            if username is None or user_id is None or user is None:
-                raise HTTPException(status_code=401, detail="User not found")
-            return user
-        except JWTError as e:
-            raise HTTPException(status_code=401, detail="Invalid token")
+
 
 
 

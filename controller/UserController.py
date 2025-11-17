@@ -6,6 +6,7 @@ import json
 from model.UserCreateRequest import UserCreateRequest
 from model.UserResponse import UserResponse
 from model.AuthRequest import AuthRequest
+from util.auth_dependency import get_current_user
 
 
 # https://chatgpt.com/share/6915b05c-08b0-800f-86e7-25c6de459305
@@ -79,3 +80,9 @@ async def get_user_by_id(
 @app.post("/login")
 async def authenticate(authRequest: AuthRequest = Body(...), db: db_depenceny = None):
     return await UserService(db).authenticate(authRequest)
+
+@app.post("/articles")
+async def create_article(
+        current_user: User = Depends(get_current_user)
+):
+    return {"msg": "Article created", "user": current_user.email}
