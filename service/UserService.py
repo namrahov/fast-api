@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from starlette.exceptions import HTTPException
 import io
 from fastapi import UploadFile
@@ -8,10 +9,13 @@ import os
 from model.UserCreateRequest import UserCreateRequest
 from passlib.context import CryptContext
 from model.AuthRequest import AuthRequest
-
+from jose import jwt
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 CHUNK_SIZE = 1024 * 1024  # 1 MB chunks
+SECRET_KEY = "dsfsfsdf"
+ALGORITHM = 'HS256'
+
 
 class UserService:
     def __init__(self, db: Session):
@@ -135,7 +139,6 @@ class UserService:
 
         return {"status": "ok"}
 
-
     async def create_user(self, create_user_request: UserCreateRequest):
         create_user_dto = User(
             name=create_user_request.name,
@@ -146,7 +149,6 @@ class UserService:
 
         self.userRepo.save_user(create_user_dto)
 
-
     async def get_user_by_id(self, user_id: int):
         return self.userRepo.get_user_by_id(user_id)
 
@@ -155,6 +157,11 @@ class UserService:
 
         if not bcrypt_context.verify(authRequest.password, user.hashed_password):
             raise HTTPException(status_code=401, detail="Invalid credentials")
-        return "token"
+        return self.create_token(authRequest.email, user.id, timedelta(minutes=20))
 
+    def create_token(self, username: str, user_id: int, expires_delta: timedelta):
+        encode = {'sub': username, 'id': user_id}
+        expires = datetime.now(timezone.utc) + expires_delta
+        encode.update({'exp': expires})
+        return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
