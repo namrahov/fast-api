@@ -1,4 +1,8 @@
 from datetime import datetime, timedelta, timezone
+from statistics import fmean
+
+from fastapi.params import Depends
+from sqlalchemy.sql.annotation import Annotated
 from starlette.exceptions import HTTPException
 import io
 from fastapi import UploadFile
@@ -9,12 +13,14 @@ import os
 from model.UserCreateRequest import UserCreateRequest
 from passlib.context import CryptContext
 from model.AuthRequest import AuthRequest
-from jose import jwt
+from jose import jwt, JWTError
+from fastapi.security import OAuth2PasswordBearer
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 CHUNK_SIZE = 1024 * 1024  # 1 MB chunks
 SECRET_KEY = "dsfsfsdf"
 ALGORITHM = 'HS256'
+oauth2_bearer=OAuth2PasswordBearer(tokenUrl="token")
 
 
 class UserService:
@@ -153,15 +159,32 @@ class UserService:
         return self.userRepo.get_user_by_id(user_id)
 
     async def authenticate(self, authRequest: AuthRequest):
+        # user1 = await self.get_current_user()
+        # print(user1)
         user = self.userRepo.get_user_by_email(authRequest.email)
 
         if not bcrypt_context.verify(authRequest.password, user.hashed_password):
             raise HTTPException(status_code=401, detail="Invalid credentials")
-        return self.create_token(authRequest.email, user.id, timedelta(minutes=20))
+        return {"access_token": self.create_token(authRequest.email, user.id, timedelta(minutes=20))}
 
     def create_token(self, username: str, user_id: int, expires_delta: timedelta):
         encode = {'sub': username, 'id': user_id}
         expires = datetime.now(timezone.utc) + expires_delta
         encode.update({'exp': expires})
         return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+
+    async def get_current_user(self, token: Annotated[str, Depends(oauth2_bearer)]):
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            username: str = payload.get('sub')
+            user_id = payload.get('id')
+            user = self.userRepo.get_user_by_id(user_id)
+            if username is None or user_id is None or user is None:
+                raise HTTPException(status_code=401, detail="User not found")
+            return user
+        except JWTError as e:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
+
+
 
