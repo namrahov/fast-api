@@ -142,6 +142,52 @@ class UserService:
 
         return {"status": "ok"}
 
+    async def save_real_excel_stream(self, file: UploadFile):
+        # Create temp file on disk
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx")
+        tmp_name = tmp.name
+
+        # Write chunks
+        while chunk := await file.read(CHUNK_SIZE):
+            tmp.write(chunk)
+
+        tmp.close()  # Must close before openpyxl reads it on Windows
+
+        users = []
+
+        try:
+            # IMPORTANT: open workbook like this
+            workbook = openpyxl.load_workbook(tmp_name, read_only=True, data_only=True)
+
+            for sheet_name in workbook.sheetnames:
+                sheet = workbook[sheet_name]
+
+                for row in sheet.iter_rows(values_only=True):
+                    if row and len(row) >= 2:
+                        name, email = row[0], row[1]
+                        if name and email:
+                            users.append({"name": name, "email": email})
+
+                    if len(users) >= 500:
+                        self.userRepo.save_all_users(users)
+                        users = []
+
+            if users:
+                self.userRepo.save_all_users(users)
+
+            # CLOSE WORKBOOK FIRST!
+            workbook.close()
+
+        finally:
+            try:
+                os.remove(tmp_name)  # NOW removal works
+            except Exception as e:
+                print("Cleanup error:", e)
+
+        return {"status": "ok"}
+
+
+
     async def create_user(self, create_user_request: UserCreateRequest):
         create_user_dto = User(
             name=create_user_request.name,
