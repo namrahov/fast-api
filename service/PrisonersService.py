@@ -56,9 +56,9 @@ class PrisonersService:
                         continue
 
                     # 3. Extract name parts
-                    adi = row[0] if len(row) > 0 else None
-                    soyadi = row[1] if len(row) > 1 else None
-                    ata_adi = row[2] if len(row) > 2 else None
+                    adi = row[1] if len(row) > 0 else None
+                    soyadi = row[2] if len(row) > 1 else None
+                    ata_adi = row[3] if len(row) > 2 else None
 
                     full_name = " ".join([str(x) for x in [adi, soyadi, ata_adi] if x])
 
@@ -77,32 +77,21 @@ class PrisonersService:
                     # 5. Mapping to Prisoner fields
                     prisoner = {
                         "full_name": full_name,
-
-                        "organization_id": to_int(row[3]) if len(row) > 3 else None,
-                        "module_id": to_int(row[4]) if len(row) > 4 else None,
-                        "sub_module_id": to_int(row[5]) if len(row) > 5 else None,
-                        "division": to_int(row[6]) if len(row) > 6 else None,
-                        "personal_number": to_int(row[7]) if len(row) > 7 else None,
-
-                        "last_meet_date": to_date(row[8]) if len(row) > 8 else None,
-                        "photo_id": to_int(row[9]) if len(row) > 9 else None,
-
-                        "short_term_permit": to_int(row[10]) if len(row) > 10 else None,
-                        "long_term_permit": to_int(row[11]) if len(row) > 11 else None,
-
-                        "visit_item": to_int(row[12]) if len(row) > 12 else None,
-                        "parcel": to_int(row[13]) if len(row) > 13 else None,
-
-                        "article": row[14] if len(row) > 14 else None,
-                        "pin": row[15] if len(row) > 15 else None,
-
-                        "serial_type_id": to_int(row[16]) if len(row) > 16 else None,
-                        "serial_number": row[17] if len(row) > 17 else None,
-
-                        "birth_date": to_date(row[18]) if len(row) > 18 else None,
-                        "start_date": to_date(row[19]) if len(row) > 19 else None,
-                        "end_date": to_date(row[20]) if len(row) > 20 else None,
-
+                        "pin": row[4] if len(row) > 15 else None,
+                        "serial_number": row[6] if len(row) > 17 else None,
+                        "birth_date": to_date(row[7]) if len(row) > 18 else None,
+                        "organization_id": to_int(row[8]) if len(row) > 3 else None,
+                        "module_id": to_int(row[9]) if len(row) > 4 else None,
+                        "sub_module_id": to_int(row[10]) if len(row) > 5 else None,
+                        "division": to_int(row[11]) if len(row) > 6 else None,
+                        "personal_number": to_int(row[12]) if len(row) > 7 else None,
+                        "article": row[13] if len(row) > 14 else None,
+                        "start_date": to_date(row[15]) if len(row) > 19 else None,
+                        "end_date": to_date(row[16]) if len(row) > 20 else None,
+                        "short_term_permit": to_int(row[17]) if len(row) > 10 else None,
+                        "long_term_permit": to_int(row[18]) if len(row) > 11 else None,
+                        "visit_item": to_int(row[19]) if len(row) > 12 else None,
+                        "parcel": to_int(row[20]) if len(row) > 13 else None,
                         "deleted": False,
                     }
 
