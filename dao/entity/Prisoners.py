@@ -29,6 +29,7 @@ class Prisoners(Base):
 
     serial_type_id = Column(Integer, nullable=True)
     serial_number = Column(String(255), nullable=True)
+    penalty_period_days = Column(String(255), nullable=True)
 
     birth_date = Column(Date, nullable=True)
     start_date = Column(Date, nullable=True)

@@ -95,7 +95,7 @@ class PrisonersService:
                         "division": to_int(row[11]),
                         "personal_number": to_int(row[12]),
                         "article": row[13],
-                        "article": row[14],
+                        "penalty_period_days": row[14],
                         "start_date": to_date(row[15]),
                         "end_date": to_date(row[16]),
                         "short_term_permit": to_int(row[17]),
