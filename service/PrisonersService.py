@@ -1,6 +1,6 @@
 import tempfile
 
-
+import re
 import os
 import openpyxl
 from datetime import datetime, date
@@ -25,6 +25,28 @@ class PrisonersService:
         keywords = ["adı", "soyadı", "ata", "fin", "doğum", "ş.v", "modul", "müəssisə"]
 
         return any(k in text for k in keywords)
+
+    @staticmethod
+    def parse_penalty_period(text: str):
+        """
+        Converts '7 il 10 ay 26 gün' → total days (int)
+        Returns None if text is invalid.
+        """
+
+        if not text or not isinstance(text, str):
+            return None
+
+        # Regex to capture numbers before il/ay/gün
+        il_match = re.search(r"(\d+)\s*il", text)
+        ay_match = re.search(r"(\d+)\s*ay", text)
+        gun_match = re.search(r"(\d+)\s*g[uü]n", text)   # gün / gun
+
+        il = int(il_match.group(1)) if il_match else 0
+        ay = int(ay_match.group(1)) if ay_match else 0
+        gun = int(gun_match.group(1)) if gun_match else 0
+
+        # Convert to total days
+        return il * 365 + ay * 30 + gun
 
     async def save_real_excel_stream(self, file: UploadFile):
         # Create temp file on disk
@@ -95,7 +117,7 @@ class PrisonersService:
                         "division": to_int(row[11]),
                         "personal_number": to_int(row[12]),
                         "article": row[13],
-                        "penalty_period_days": row[14],
+                        "penalty_period_days": self.parse_penalty_period(row[14]),
                         "start_date": to_date(row[15]),
                         "end_date": to_date(row[16]),
                         "short_term_permit": to_int(row[17]),
@@ -125,6 +147,8 @@ class PrisonersService:
                 print("Cleanup error:", e)
 
         return {"status": "ok"}
+
+
 
 
 
