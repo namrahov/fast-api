@@ -3,7 +3,7 @@ import tempfile
 
 import os
 import openpyxl
-import datetime
+from datetime import datetime, date
 from fastapi import UploadFile
 from dao.repository.PrisonersRepository import *
 
@@ -70,14 +70,23 @@ class PrisonersService:
                             return None
 
                     def to_date(value):
-                        if isinstance(value, (datetime.datetime, datetime.date)):
+                        if isinstance(value, (datetime, date)):
                             return value
+
+                        if isinstance(value, str):
+                            try:
+                                # Parse DD-MM-YYYY
+                                return datetime.strptime(value, "%d-%m-%Y").date()
+                            except ValueError:
+                                return None  # invalid date format
+
                         return None
 
                     # 5. Mapping to Prisoner fields
                     prisoner = {
                         "full_name": full_name,
                         "pin": row[4],
+                        "serial_type_id": row[5],
                         "serial_number": row[6],
                         "birth_date": to_date(row[7]),
                         "organization_id": to_int(row[8]),
@@ -86,6 +95,7 @@ class PrisonersService:
                         "division": to_int(row[11]),
                         "personal_number": to_int(row[12]),
                         "article": row[13],
+                        "article": row[14],
                         "start_date": to_date(row[15]),
                         "end_date": to_date(row[16]),
                         "short_term_permit": to_int(row[17]),

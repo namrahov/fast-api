@@ -11,7 +11,7 @@ class Prisoners(Base):
     organization_id = Column(Integer, nullable=True)
     module_id = Column(Integer, nullable=True)
     sub_module_id = Column(Integer, nullable=True)
-    division = Column(Integer, nullable=False)
+    division = Column(Integer, nullable=True)
     personal_number = Column(Integer, nullable=True)
 
     last_meet_date = Column(Date, nullable=True)
