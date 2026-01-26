@@ -9,6 +9,21 @@ from model.AuthRequest import AuthRequest
 from util.auth_dependency import get_current_user
 
 
+def require_any_role(*required_roles: str):
+    def checker(current_user: User = Depends(get_current_user)):
+        user_role = current_user.role.name
+        print("role=",current_user.role.name)
+
+        if user_role not in required_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient role"
+            )
+
+        return current_user
+
+    return checker
+
 # https://chatgpt.com/share/6915b05c-08b0-800f-86e7-25c6de459305
 @app.websocket("/ws/upload-excel")
 async def upload_excel_socket(websocket: WebSocket,
@@ -83,9 +98,7 @@ async def authenticate(authRequest: AuthRequest = Body(...), db: db_depenceny = 
 
 @app.post("/articles")
 async def create_article(
-        current_user: User = Depends(get_current_user)
+        current_user: User = Depends(require_any_role("ROLE_USER", "ROLE_ADMIN"))
 ):
-    role = current_user.role
-    if role != "admin":
-        raise HTTPException(status_code=403, detail="No permission")
+
     return {"msg": "Article created", "user": current_user.email}
