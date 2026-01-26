@@ -85,4 +85,7 @@ async def authenticate(authRequest: AuthRequest = Body(...), db: db_depenceny = 
 async def create_article(
         current_user: User = Depends(get_current_user)
 ):
+    role = current_user.role
+    if role != "admin":
+        raise HTTPException(status_code=403, detail="No permission")
     return {"msg": "Article created", "user": current_user.email}
