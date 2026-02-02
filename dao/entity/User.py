@@ -11,8 +11,9 @@ class User(Base):
     email = Column(String(120))
     hashed_password = Column(String)
     active = Column(Boolean, default=False)
+    nurlan = Column(String)
     role_id = Column(Integer, ForeignKey("roles.id"))
     role = relationship("Role")   # ⭐ THIS ENABLES NESTED RETURN
 
     def __repr__(self):
-        return f"<User(id={self.id}, name='{self.name}', email='{self.email}', active={self.active}, role='{self.role}')>"
+        return f"<User(id={self.id}, name='{self.name}', email='{self.email}', active={self.active},  nurlan={self.nurlan}, role='{self.role}')>"

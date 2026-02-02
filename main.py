@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-
+from alembic.config import Config
+from alembic import command
 from dotenv import load_dotenv
 # ✅ Load environment variables
 load_dotenv("application-local.env")
-
+from db.database import DATABASE_URL
 from db.database import engine, Base
 import importlib
 import pkgutil
@@ -31,8 +32,19 @@ def load_models(package):
 load_models(entity)
 
 # ✅ Initialize database tables
+# def setup_database():
+#     Base.metadata.create_all(bind=engine)
 def setup_database():
-    Base.metadata.create_all(bind=engine)
+    """Run Alembic migrations on startup"""
+    try:
+        alembic_cfg = Config("alembic.ini")
+        # ⭐ Set the database URL BEFORE running upgrade
+        alembic_cfg.set_main_option("sqlalchemy.url", DATABASE_URL)
+        command.upgrade(alembic_cfg, "head")
+        print("✅ Database migrations applied successfully")
+    except Exception as e:
+        print(f"❌ Error running migrations: {e}")
+        raise
 
 # ✅ Run the server
 def run_server():
